@@ -5,6 +5,10 @@ public class Square {
     private int column;
     private SquareStatus squareStatus;
 
+    public void setSquareStatus(SquareStatus squareStatus) {
+        this.squareStatus = squareStatus;
+    }
+
     public Square(int row, int column, SquareStatus squareStatus) {
         this.row = row;
         this.column = column;
@@ -33,7 +37,7 @@ public class Square {
                 result = 'O';
             }
             case HIT -> {
-                result = 'H';
+                result = 'X';
             }
             case MISS -> {
                 result = 'M';
