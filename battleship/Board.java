@@ -57,6 +57,7 @@ public class Board {
                 if (coordinatesStrSplit.length != 2) {
                     throw new IllegalArgumentException("Invalid input. Please enter 2 coordinates separated by a space (\" \").");
                 }
+                // Coordinates class will check if the given coordinates are in bound of the grid.
                 Coordinate firstCoordinate = Coordinate.parseCoordinate(coordinatesStrSplit[0]);
                 Coordinate secondCoordinate = Coordinate.parseCoordinate(coordinatesStrSplit[1]);
 
@@ -72,6 +73,12 @@ public class Board {
                 if (distance != ship.length) {
                     throw new IllegalArgumentException("Invalid ship length.");
                 }
+                // Check if there are no ships overlapping
+                if (isOccupiedByShip(firstCoordinate, secondCoordinate, distance, isHorizontal)) {
+                    throw new IllegalArgumentException("The given coordinates are already occupied.");
+                }
+                // Check if there are neighbouring ships
+
                 placeShip(firstCoordinate, secondCoordinate, ship);
             } catch (IllegalArgumentException e) {
                 System.out.println("Error :" + e.getMessage());
@@ -80,7 +87,40 @@ public class Board {
         }
     }
 
-    private boolean isInAStraightLine(Coordinate firstCoordinate, Coordinate secondCoordinate) {
+    private boolean isOccupiedByShip(Coordinate firstCoordinate, Coordinate secondCoordinate, int length, boolean isHorizontal) {
+        if (isHorizontal) {
+            if (firstCoordinate.getRow() > secondCoordinate.getRow()) {
+                for (int i = 0; i < length; i++) {
+                    if (getSquare(secondCoordinate.getRow(), secondCoordinate.getColumn() + i).getSquareStatus().equals(SquareStatus.SHIP)) {
+                        return true;
+                    }
+                }
+            } else {
+                for (int i = 0; i < length; i++) {
+                    if (getSquare(firstCoordinate.getRow(), secondCoordinate.getColumn() + i).getSquareStatus().equals(SquareStatus.SHIP)) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            if (firstCoordinate.getColumn() > secondCoordinate.getColumn()) {
+                for (int i = 0; i < length; i++) {
+                    if (getSquare(secondCoordinate.getRow() + i, secondCoordinate.getColumn()).getSquareStatus().equals(SquareStatus.SHIP)) {
+                        return true;
+                    }
+                }
+            } else {
+                for (int i = 0; i < length; i++) {
+                    if (getSquare(firstCoordinate.getRow() + i, secondCoordinate.getColumn()).getSquareStatus().equals(SquareStatus.SHIP)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
+    }
+        private boolean isInAStraightLine(Coordinate firstCoordinate, Coordinate secondCoordinate) {
         return (firstCoordinate.getRow() == secondCoordinate.getRow() ||
                 firstCoordinate.getColumn() == secondCoordinate.getColumn());
     }
