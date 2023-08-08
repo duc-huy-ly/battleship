@@ -22,13 +22,13 @@ public class Coordinate {
         if (input.length() < 2) {
             throw new IllegalArgumentException("Invalid coordinate format");
         }
-        char colChar = Character.toUpperCase(input.charAt(0));
-        int row = Integer.parseInt(input.substring(1));
-        if (colChar < 'A' || colChar > 'J' || row < 1 || row > 10) {
+        char rowChar = Character.toUpperCase(input.charAt(0));
+        int col = Integer.parseInt(input.substring(1));
+        if (rowChar < 'A' || rowChar > 'J' || col < 1 || col > 10) {
             throw new IllegalArgumentException("Invalid coordinate values. Try again.");
         }
-        int col = colChar - 'A';
-        row--; //convert row number to zero based index
+        int row = rowChar - 'A';
+        col--; //convert row number to zero based index
         return new Coordinate(row, col);
     }
 }

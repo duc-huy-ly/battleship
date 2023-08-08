@@ -1,5 +1,6 @@
 package battleship;
 
+//import java.util.List;
 import java.util.Scanner;
 
 public class Board {
@@ -77,6 +78,7 @@ public class Board {
                     if (isOccupiedByShipWithNeighbors(firstCoordinate, secondCoordinate, isHorizontal)) {
                         throw new IllegalArgumentException("The given coordinates are already occupied.");
                     }
+
                     placeShip(firstCoordinate, secondCoordinate, ship, isHorizontal);
                     placed = true;
                     displayBoard();
@@ -109,8 +111,8 @@ public class Board {
 
             for (int row = startRow - 1; row <= endRow + 1; row++) {
                 for (int column = firstCoordinate.getColumn() - 1; column <= firstCoordinate.getColumn() + 1; column++) {
-                    if (isValidCoordinate(column, row)) {
-                        Square square = getSquare(column, row);
+                    if (isValidCoordinate(row, column)) {
+                        Square square = getSquare(row, column);
                         if (square.getSquareStatus().equals(SquareStatus.SHIP)) {
                             return true;
                         }
@@ -139,25 +141,68 @@ public class Board {
         if (isHorizontal) {
             if (coord1.getColumn() < coord2.getColumn()) {
                 for (int i = 0; i < ship.getLength(); i++) {
-                    getSquare(coord1.getColumn()+i, coord1.getRow() ).setSquareStatus(SquareStatus.SHIP);
+                    getSquare(coord1.getRow(), coord1.getColumn()+i ).setSquareStatus(SquareStatus.SHIP);
                 }
             } else {
                 for (int i = 0; i < ship.getLength(); i++) {
-                    getSquare(coord2.getColumn()+i, coord2.getRow() ).setSquareStatus(SquareStatus.SHIP);
+                    getSquare(coord2.getRow(), coord2.getColumn()+i ).setSquareStatus(SquareStatus.SHIP);
 
                 }
             }
         } else {
             if (coord1.getRow() < coord2.getRow()) {
                 for (int i = 0; i < ship.getLength(); i++) {
-                    getSquare(coord1.getColumn() , coord1.getRow()+i).setSquareStatus(SquareStatus.SHIP);
+                    getSquare(coord1.getRow() +i, coord1.getColumn()).setSquareStatus(SquareStatus.SHIP);
                 }
             } else {
                 for (int i = 0; i < ship.getLength(); i++) {
-                    getSquare(coord2.getColumn() , coord2.getRow() + i).setSquareStatus(SquareStatus.SHIP);
+                    getSquare(coord2.getRow()+i , coord2.getColumn() ).setSquareStatus(SquareStatus.SHIP);
 
                 }
             }
         }
+    }
+
+    public void takeAShot() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("The game starts!");
+        displayBoard();
+        System.out.println("Take a shot!");
+        boolean placed = false;
+        while (!placed) {
+            String input = scanner.next().toUpperCase();
+            try {
+                Coordinate coordinate = Coordinate.parseCoordinate(input);
+                if (isShotAtShip(coordinate)) {
+                    getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.HIT);
+                    displayBoard();
+                    System.out.println("You hit a ship!");
+                } else if (isShotAtOcean(coordinate)) {
+                    getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.MISS);
+                    displayBoard();
+                    System.out.println("You missed");
+                } else if (isShotAtHit(coordinate)) {
+                    displayBoard();
+                    System.out.println("You already hit a target there");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error :" + e.getMessage());
+                System.out.println("Try again");
+            }
+        }
+    }
+
+    private boolean isShotAtHit(Coordinate coordinate) {
+        return getSquare(coordinate.getRow(), coordinate.getColumn()).getSquareStatus().equals(SquareStatus.HIT);
+
+    }
+
+    private boolean isShotAtOcean(Coordinate coordinate) {
+        return getSquare(coordinate.getRow(), coordinate.getColumn()).getSquareStatus().equals(SquareStatus.OCEAN);
+
+    }
+
+    private boolean isShotAtShip(Coordinate coordinate) {
+        return getSquare(coordinate.getRow(), coordinate.getColumn()).getSquareStatus().equals(SquareStatus.SHIP);
     }
 }
