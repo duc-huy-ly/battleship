@@ -31,4 +31,16 @@ public class Coordinate {
         col--; //convert row number to zero based index
         return new Coordinate(row, col);
     }
+
+    public static int calculateDistance(Coordinate firstCoordinate, Coordinate secondCoordinate, boolean isHorizontal) {
+        if (isHorizontal) {
+            return Math.abs(firstCoordinate.getColumn() - secondCoordinate.getColumn()) + 1;
+        } else {
+            return Math.abs(firstCoordinate.getRow() - secondCoordinate.getRow()) + 1;
+        }
+    }
+
+    public static boolean isValidCoordinate(int row, int column) {
+        return row >= 0 && row < 10 && column >= 0 && column < 10;
+    }
 }
