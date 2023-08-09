@@ -1,9 +1,17 @@
 package battleship;
 
 public class Square {
-    private int row;
-    private int column;
+    private final int row;
+    private final int column;
     private SquareStatus squareStatus;
+    private ShipType shipType;
+    public ShipType getShipType() {
+        return shipType;
+    }
+
+    public void setShipType(ShipType ship) {
+        this.shipType = ship;
+    }
 
     public void setSquareStatus(SquareStatus squareStatus) {
         this.squareStatus = squareStatus;
@@ -15,14 +23,6 @@ public class Square {
         this.squareStatus = squareStatus;
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
     public SquareStatus getSquareStatus() {
         return squareStatus;
     }
@@ -30,18 +30,10 @@ public class Square {
     public char getCharacter() {
         char result = ' ';
         switch (squareStatus) {
-            case OCEAN -> {
-                result = '~';
-            }
-            case SHIP -> {
-                result = 'O';
-            }
-            case HIT -> {
-                result = 'X';
-            }
-            case MISS -> {
-                result = 'M';
-            }
+            case OCEAN -> result = '~';
+            case SHIP -> result = 'O';
+            case HIT -> result = 'X';
+            case MISS -> result = 'M';
         }
         return result;
     }

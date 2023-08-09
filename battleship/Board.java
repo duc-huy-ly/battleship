@@ -1,24 +1,32 @@
 package battleship;
 
 //import java.util.List;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
     private final int size;
     private Square[][] matrix;
-//    private List<Ship> ships;
+    private final List<Ship> ships;
+    private int remainingShips;
+
+    public int getRemainingShips() {
+        return remainingShips;
+    }
+
+    public List<Ship> getShips() {
+        return ships;
+    }
 
     public Board(int size) {
         this.size = size;
         createBoard();
+        this.ships = new ArrayList<>();
+        this.remainingShips = 0;
     }
 
     public int getSize() {
         return size;
-    }
-
-    public Square[][] getMatrix() {
-        return matrix;
     }
 
     public Square getSquare(int x, int y) {
@@ -38,4 +46,12 @@ public class Board {
         }
     }
 
+    public void addShip(Ship ship) {
+        ships.add(ship);
+        remainingShips++;
+    }
+
+    public void decrementShip() {
+        this.remainingShips--;
+    }
 }

@@ -1,24 +1,25 @@
 package battleship;
 
-import java.util.List;
-
 public class Ship {
-    private List<Square> NewShip;
-    private ShipType shipType;
+    private final ShipType shipType;
+    private int ShipHP;
 
-    public Ship(List<Square> newShip, ShipType shipType) {
-        NewShip = newShip;
-        this.shipType = shipType;
+    public int getShipHP() {
+        return ShipHP;
     }
-    public List<Square> getFields() {
-        return NewShip;
+
+
+    public Ship(ShipType shipType) {
+        this.shipType = shipType;
+        this.ShipHP = shipType.getLength();
     }
 
     public ShipType getShipType() {
         return shipType;
     }
 
-    public void add(Square square) {
-        NewShip.add(square);
+    public void decrementShipHP() {
+        this.ShipHP--;
     }
+
 }
