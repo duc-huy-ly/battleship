@@ -1,27 +1,66 @@
 package battleship;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Game {
-    final int DEFAULT_SIZE = 10;
-    private final Board board = new Board(DEFAULT_SIZE);
-    private final Board fogOfWarBoard = new Board(DEFAULT_SIZE);
+
     private final Scanner scanner = new Scanner(System.in);
+
+
     public void start() {
-        displayBoard(board);
-        placeShips(board);
-        System.out.println("The game starts!");
-        displayBoard(fogOfWarBoard);
-        boolean sankAllShips = false;
-        while (!sankAllShips) {
-            takeAShot(board, fogOfWarBoard);
-            if (board.getRemainingShips()==0) {
-                sankAllShips = true;
-            }
+        Player player1 = new Player("Player 1");
+        Player player2 = new Player("Player 2");
+        List<Player> playerList = new ArrayList<>();
+        playerList.add(player1);
+        playerList.add(player2);
+        for (Player player: playerList) {
+            System.out.println(player.getLabel() + ", place your ships on the game field");
+            player.getBoard().displayBoard();
+            placeShips(player.getBoard());
+            System.out.println("Press Enter and pass the move the another player");
+            scanner.nextLine();
         }
-        System.out.println("You sank the last ship. You won. Congratulations");
+        //game loop
+        System.out.println("The game starts !");
+        int i = 0;
+        while (true) {
+            int ourBoardIndex = i%2;
+            int enemyBoardIndex = (i+1)%2;
+            displayEmptyBoardOnTopAndOursOnBottom(playerList.get(ourBoardIndex));
+            System.out.println(playerList.get(ourBoardIndex).getLabel() + ", it's your turn");
+            takeAShot(playerList.get(enemyBoardIndex).getBoard(), playerList.get(ourBoardIndex).getBlankBoard());
+            if (playerList.get(enemyBoardIndex).getBoard().getRemainingShips() == 0) {
+                break;
+            }
+            i++;
+            System.out.println("Press Enter and pass the move to another player");
+            scanner.nextLine();
+        }
+        System.out.println("You sank the last ship. You won. Congratulations!");
+
+//        displayBoard(board);
+//        placeShips(board);
+//        System.out.println("The game starts!");
+//        displayBoard(fogOfWarBoard);
+//        boolean sankAllShips = false;
+//        while (!sankAllShips) {
+//            takeAShot(board, fogOfWarBoard);
+//            if (board.getRemainingShips()==0) {
+//                sankAllShips = true;
+//            }
+//        }
+
     }
+
+    private void displayEmptyBoardOnTopAndOursOnBottom(Player player) {
+        player.getBlankBoard().displayBoard();
+        System.out.println("---------------------\n");
+        player.getBoard().displayBoard();
+    }
+
 
     public void placeShips(Board board) {
         Scanner scanner = new Scanner(System.in);
@@ -57,10 +96,10 @@ public class Game {
                         throw new IllegalArgumentException("The given coordinates are already occupied.");
                     }
 
-                    placeShip(firstCoordinate, secondCoordinate, shipType, isHorizontal);
+                    placeShip(firstCoordinate, secondCoordinate, shipType, isHorizontal, board);
                     board.addShip(new Ship(shipType));
                     placed = true;
-                    displayBoard(board);
+                    board.displayBoard();
                 } catch (IllegalArgumentException e) {
                     System.out.println("Error :" + e.getMessage());
                     System.out.println("Please try again");
@@ -68,7 +107,7 @@ public class Game {
             }
         }
     }
-    private void placeShip(Coordinate coord1, Coordinate coord2, ShipType shipType, boolean isHorizontal) {
+    private void placeShip(Coordinate coord1, Coordinate coord2, ShipType shipType, boolean isHorizontal, Board board) {
         //determine which coordinate to use first
         if (isHorizontal) {
             if (coord1.getColumn() < coord2.getColumn()) {
@@ -128,19 +167,8 @@ public class Game {
         }
         return false;
     }
-    private void displayBoard(Board board) {
-        int size = board.getSize();
-        System.out.print("  1 2 3 4 5 6 7 8 9 10\n");
-        for (int i = 0; i < size; i++) {
-            System.out.printf("%c ", (char) (i + 65));
-            for (int j = 0; j < size; j++) {
-                System.out.printf("%c ", board.getCharAtSquare(i,j));
-            }
-            System.out.print("\n");
-        }
-    }
-    private void takeAShot(Board enemyBoard, Board blankBoard) {
-        System.out.println("Take a shot!");
+
+    private void takeAShot(Board enemyBoard, Board ourBlankBoard) {
         boolean placed = false;
         while (!placed) {
             String input = scanner.next().toUpperCase();
@@ -150,12 +178,12 @@ public class Game {
                 switch (enemyBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).getSquareStatus()) {
                     case OCEAN, MISS -> {
                         enemyBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.MISS);
-                        blankBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.MISS);
+                        ourBlankBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.MISS);
                         output = "You missed";
                     }
                     case SHIP, HIT-> {
                         enemyBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.HIT);
-                        blankBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.HIT);
+                        ourBlankBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).setSquareStatus(SquareStatus.HIT);
                         decrementHPOfTheHitShip(coordinate, enemyBoard);
                         if (shipIsSunk(coordinate, enemyBoard)) {
                             output = "You sank a ship ! specify a new target:";
@@ -163,10 +191,8 @@ public class Game {
                         } else {
                             output = "You hit a ship!";
                         }
-
                     }
                 }
-                displayBoard(blankBoard);
                 System.out.println(output);
                 placed = true;
             } catch (IllegalArgumentException e) {
@@ -174,12 +200,14 @@ public class Game {
                 System.out.println("Try again");
             }
         }
+        scanner.nextLine();
     }
 
     private void decrementHPOfTheHitShip(Coordinate coordinate, Board enemyBoard) {
+        //get the shipType at the enemyBoard
         ShipType typeOfShipAtCoordinate = enemyBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).getShipType();
-        //get the ship object with the matching shiptype
-        for ( Ship ship : board.getShips()) {
+        //get the ship object with the matching shiptype on
+        for ( Ship ship : enemyBoard.getShips()) {
             if (ship.getShipType().equals(typeOfShipAtCoordinate)) {
                 ship.decrementShipHP();
             }
@@ -191,7 +219,7 @@ public class Game {
         //get the shiptype from the given coordinate
         ShipType typeOfShipAtCoordinate = enemyBoard.getSquare(coordinate.getRow(), coordinate.getColumn()).getShipType();
         //get the ship object with the matching shiptype
-        for ( Ship ship : board.getShips()) {
+        for ( Ship ship : enemyBoard.getShips()) {
             if (ship.getShipType().equals(typeOfShipAtCoordinate)) {
                 //if that ship's hp is 0, return true
                 if (ship.getShipHP() == 0) {

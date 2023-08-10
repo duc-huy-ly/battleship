@@ -45,6 +45,17 @@ public class Board {
             }
         }
     }
+    public void displayBoard() {
+        int size = getSize();
+        System.out.print("  1 2 3 4 5 6 7 8 9 10\n");
+        for (int i = 0; i < size; i++) {
+            System.out.printf("%c ", (char) (i + 65));
+            for (int j = 0; j < size; j++) {
+                System.out.printf("%c ", getCharAtSquare(i,j));
+            }
+            System.out.print("\n");
+        }
+    }
 
     public void addShip(Ship ship) {
         ships.add(ship);
